@@ -46,7 +46,7 @@ def simulate_against(
         # Update colors for newly born cells
         is_red[new_born] = red_neighbors[new_born] > (neighbors[new_born] / 2)
 
-        # Create RGB image
+        # Create RGB image for a single 300x300 grid
         rgb_image = np.concatenate(
             [
                 np.zeros((300, 300, 1), dtype=np.uint8),
@@ -63,8 +63,15 @@ def simulate_against(
         )
         rgb_image = rgb_image * grid.reshape(300, 300, 1)
 
-        # Display the grid
-        cv2.imshow("Game of Life - Two Grids", rgb_image)
+        # Create a 600x600 grid with 4 copies of the field
+        large_rgb_image = np.zeros((600, 600, 3), dtype=np.uint8)
+        large_rgb_image[:300, :300] = rgb_image
+        large_rgb_image[:300, 300:] = rgb_image
+        large_rgb_image[300:, :300] = rgb_image
+        large_rgb_image[300:, 300:] = rgb_image
+
+        # Display the 600x600 grid
+        cv2.imshow("Game of Life - Toroidal Display", large_rgb_image)
 
         # Increment step counter
         step += 1
