@@ -128,13 +128,15 @@ with open("out.txt", "w") as output:
 
 # Setup max as the second field
 field2 = np.zeros((100, 250))
+starting_point = 0
 field2[
     field2.shape[0] // 2 - max_.shape[0] // 2 : field2.shape[0] // 2
     + max_.shape[0] // 2
     + 1,
-    field2.shape[1] // 2 - max_.shape[1] // 2 : field2.shape[1] // 2
+    field2.shape[1] // 2 - max_.shape[1] // 2 + starting_point : field2.shape[1] // 2
     + max_.shape[1] // 2
-    + 1,
+    + 1
+    + starting_point,
 ] = max_
 field3 = np.zeros((100, 250))
 
