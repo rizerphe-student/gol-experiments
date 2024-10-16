@@ -26,20 +26,30 @@ field[6:8, 2:4] = 1
 field[6:8, 14:16] = 1
 # field[-9:-7, 14:16] = 1
 
+# Gun prot
+for x in range(15, 60):
+    for y in range(28, 48):
+        if x % 3 and 0 < (y % 10) < 3:
+            field[x, y] = 1
+
 # Spaceship
 spaceship = decode("""x = 5, y = 4, rule = B3/S23
 bo2bo$o$o3bo$4o!""").T
 
-for y in range(30, 90, 10):
+for y in range(34, 110, 6):
     field[-5:, y : y + 4] = spaceship[::-1, :]
     field[-13:-8, y : y + 4] = spaceship[::-1, :]
+
+for y in range(112, 125, 7):
+    for x in range(-5, -30, -8):
+        field[x : x + 5 or None, y : y + 4] = spaceship[::-1, :]
 
 # Glider
 glider = decode("""x = 3, y = 3, rule = B3/S23
 bo$2bo$3o!""").T
 
-for y in range(90, 110, 5):
-    for x in range(-37, -16, 5):
+for y in range(70, 110, 5):
+    for x in range(-39, -14, 5):
         field[x : x + 3, y : y + 3] = glider[:, ::-1]
 
 # Rake
@@ -48,8 +58,19 @@ rake = decode("""x = 22, y = 19, rule = B3/S23
 5o4bo2bo$8b4o3b2ob2o$11bo4b2o4$18b4o$o2bo13bo3bo$4bo16bo$o3bo12bo2bo$
 b4o!""").T
 
-field[-22:, 0:19] = rake[:, ::-1]
+# field[-22:, 0:19] = rake[:, ::-1]
 
+# Orthogonal
+gliderless_gun = decode("""x = 40, y = 29, rule = B3/S23
+6bo$6b3o$9bo$8b2o$2b2o$3bo$2bo$2b2o2$2b2o7bobo2bobo$2bobo6bo2bo3bo$3b
+o5b2o3bobobo$3o7b3obo$o6b2o5b2o8b3o$7b2o4b2o8bo3bo$7b2o3bo9bo5bo$7b2o
+bobo8bo3bo3bo$7b2obobo8bo7bo5b2o$21bobo3bobo5b2o$17b2o3b2o3b2o$10b2o4b
+obo$6b2o2b2o4bo19b2o$5bobo7b2o19bo$5bo31b3o$4b2o19bo13bo$19b2obobobo$
+19bob2ob2obo$27bo$27b2o!
+""").T
+
+field[-40:, :29] = gliderless_gun[:, :]
+0
 # Flip the bottom (first coordinate positive) to copy it over to the top (first coordinate negative)
 field = np.hstack((field, field[:, -2::-1]))
 field = np.hstack((field, np.zeros((100, 1), dtype=np.bool_)))
@@ -62,10 +83,10 @@ bo7b2o4b2obobo$9bo7b3o4bobobo$18bo7bo$15b2o9b2o$15b2obo7b3o$15bo2bo7b
 $15bo9bo7bo$12b3o11b3ob3o$12bo15bobo!
 """).T
 
-field[40:74, 0:24] = gun
-#field[20:54, 40:64] = gun
-field[40:74, -24:] = gun[::-1, ::-1]
-#field[20:54, -64:-40] = gun[::-1, ::-1]
+field[20:54, 0:24] = gun
+# field[20:54, 40:64] = gun
+field[20:54, -24:] = gun[::-1, ::-1]
+# field[20:54, -64:-40] = gun[::-1, ::-1]
 
 # Max:
 max_ = decode("""x = 27, y = 27, rule = B3/S23
@@ -85,6 +106,10 @@ field[
     + max_.shape[1] // 2
     + 1,
 ] = max_
+
+# Glider row in the bottom right
+for i in range(80, 100, 5):
+    field[i : i + 3, -3:] = glider
 
 # Transpose the field to match the orientation of the image
 field = field.T
@@ -111,5 +136,6 @@ field2[
     + max_.shape[1] // 2
     + 1,
 ] = max_
+field3 = np.zeros((100, 250))
 
 simulate_against(field, field2.T)
