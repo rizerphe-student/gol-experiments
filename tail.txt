@@ -1,0 +1,289 @@
+]
+  let arrayLength array:length pairArray
+
+  let index 0  ;; Initialize the index
+  
+  ;; Use repeat loop to go over all items in the array
+  repeat arrayLength [
+    ;; Get the current pair (list) from the array
+    let currentPair array:item pairArray index
+    
+    ;; Extract x and y coordinates from the pair
+    let x first currentPair
+    let y last currentPair
+    
+    ;; Set the patch at (x, y) to the specified color
+    ask patch (x - 125)  (y - 125) [
+      set alive? true
+      set pcolor c
+      set future-color pcolor
+    ]
+    
+    ;; Increment the index after each iteration
+    set index index + 1
+  ]
+end
+
+
+to setup-solid-vs-random
+   clear-all
+
+  ask patches [
+    set pcolor white
+    set alive? false
+    set future-color white
+  ]
+
+  let i 0
+  let j 0
+  repeat 30 [
+    repeat 60 [
+      setupsquare red (-125 + i) (-125 + j)
+        set j j + 4
+    ]
+      set i i + 4
+  ]
+
+
+
+
+
+   ask patches with [pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125][
+    if random-float 1 < 0.43 [
+      set alive? true
+      set pcolor blue
+      set future-color blue
+    ]
+  ]
+
+
+ ; remove all out of regions
+
+  ask patches [
+    if not ((pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125) or (pxcor >= -125 and pxcor <= -25 and pycor >= -125 and pycor <= 125)) [
+      set alive? false
+      set pcolor white
+      set future-color white
+    ]
+  ]
+
+  reset-ticks
+end
+
+
+to setup-random
+   clear-all
+
+  ask patches [
+    set pcolor white
+    set alive? false
+    set future-color white
+  ]
+
+  ; red region
+  ; x_min = -125 x_max = -25
+  ; y_min = -125 y_max = 125
+
+  ask patches with [pxcor >= -125 and pxcor <= -25 and pycor >= -125 and pycor <= 125][
+    if random-float 1 < 0.43 [
+      set alive? true
+      set pcolor red
+      set future-color red
+    ]
+  ]
+
+
+  ; blue region
+  ; x_min = 25 x_max = 125
+  ; y_min = -125 y_max = 125
+
+  ask patches with [pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125][
+    if random-float 1 < 0.43 [
+      set alive? true
+      set pcolor blue
+      set future-color blue
+    ]
+  ]
+
+
+   ; remove all out of regions
+
+  ask patches [
+    if not ((pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125) or (pxcor >= -125 and pxcor <= -25 and pycor >= -125 and pycor <= 125)) [
+      set alive? false
+      set pcolor white
+      set future-color white
+    ]
+  ]
+  reset-ticks
+end
+
+
+to setup-max-vs-random
+   clear-all
+
+  ask patches [
+    set pcolor white
+    set alive? false
+    set future-color white
+  ]
+  fill-patches-with-color red
+
+
+
+
+   ask patches with [pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125][
+    if random-float 1 < 0.43 [
+      set alive? true
+      set pcolor blue
+      set future-color blue
+    ]
+  ]
+
+
+ ; remove all out of regions
+
+  ask patches [
+    if not ((pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125) or (pxcor >= -125 and pxcor <= -25 and pycor >= -125 and pycor <= 125)) [
+      set alive? false
+      set pcolor white
+      set future-color white
+    ]
+  ]
+
+  reset-ticks
+end
+
+
+
+to setupsquare [c n m]
+
+  ask patch (n) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n + 1) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n) (m + 1) [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n + 1) (m + 1) [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+end
+
+to setupacorn [c n m]
+
+
+  ask patch (n - 1) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n - 2) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+
+   ask patch (n + 2) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+   ask patch (n + 3) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n + 4) m [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n + 1) (m + 1) [
+    set alive? true
+    set pcolor c
+    set future-color pcolor
+  ]
+
+  ask patch (n - 1) (m + 2) [
+   set alive? true
+      set pcolor c
+    set future-color pcolor
+  ]
+
+
+
+end
+
+to simulate
+
+  repeat 5000 [go]
+  ifelse count patches with [pcolor = red] > count patches with [pcolor = blue] [
+    set winner "red"
+  ][
+    set winner "blue"
+  ]
+end
+
+to go
+
+  ask patches [
+    ; if patch is dead
+    ifelse pcolor = white [
+      ; if we have more then 3 alive neighbors
+      let s neighbors with [pcolor != white]
+      if count s = 3 [
+        set alive? true
+        let my-list [pcolor] of s
+
+        ;show my-list
+
+        let counter map [ i -> frequency i my-list ] my-list
+        let i max  counter
+        ;show i
+        let n position i  counter
+
+        set future-color item n my-list
+      ]
+    ][
+      ; if we alive and we have less 2 or more 3 alive neigbors
+      if count neighbors with [pcolor != white] > 3 or count neighbors with [pcolor != white] < 2 [
+        set alive? false
+        set future-color white
+      ]
+
+    ]
+  ]
+
+  ask patches [
+    set pcolor future-color
+  ]
+tick
+
+end
+
+to-report frequency [x the-list]
+  ;; this snippet of code is given as an example in the NetLogo Dictionary when defining "reduce"
+  report reduce
+    [ [occurrence-count next-item] -> ifelse-value (next-item = x) [occurrence-count + 1] [occurrence-count] ] (fput 0 the-list)
+end
+

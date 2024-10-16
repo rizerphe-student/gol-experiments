@@ -1,0 +1,64 @@
+extensions [array]
+globals[
+  winner
+  pairArray  ;; Global variable to store the array of coordinate pairs
+]
+patches-own [
+  alive?
+  future-color
+]
+
+to setup-n-acorns-vs-random
+
+  clear-all
+
+  ask patches [
+    set pcolor white
+    set alive? false
+    set future-color white
+  ]
+
+  ; red region
+  ; x_min = -125 x_max = -25
+  ; y_min = -125 y_max = 125
+
+  let i 0
+  repeat n-acorns [
+  setupacorn red -80 (-125 + (i * 10))
+  set i i + 1
+  ]
+
+  set i 0
+  repeat n-acorns [
+  setupacorn red -120 (-125 + (i * 10))
+  set i i + 1
+  ]
+
+  ; blue region
+  ; x_min = 25 x_max = 125
+  ; y_min = -125 y_max = 125
+
+   ask patches with [pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125][
+    if random-float 1 < 0.43 [
+      set alive? true
+      set pcolor blue
+      set future-color blue
+    ]
+  ]
+
+ ; remove all out of regions
+
+  ask patches [
+    if not ((pxcor >= 25 and pxcor <= 125 and pycor >= -125 and pycor <= 125) or (pxcor >= -125 and pxcor <= -25 and pycor >= -125 and pycor <= 125)) [
+      set alive? false
+      set pcolor white
+      set future-color white
+    ]
+  ]
+
+  reset-ticks
+end
+
+to fill-patches-with-color [c]
+  ;; Loop over each index in the array of pairs
+  set pairArray array:from-list [
